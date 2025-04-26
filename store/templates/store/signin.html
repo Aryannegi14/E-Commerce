@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In</title>
+  <style>
+    body {
+      background-color: #49986b;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: #49986b;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .title-text {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: white;
+    }
+
+    .signin-box {
+      background-color: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .signin-box form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .signin-box input {
+      padding: 10px;
+      margin: 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .signin-box button {
+      padding: 10px;
+      background-color: #49986b;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .signin-box button:hover {
+      background-color: white;
+      color: #49986b;
+      border: 1px solid #49986b;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 12px;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .error-message a {
+      color: red;
+      text-decoration: underline;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+      color: white;
+    }
+
+    .link a {
+      color: white;
+      text-decoration: underline;
+    }
+
+    .show-password-checkbox {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  {% include 'store/navbar.html' %}
+  <div class="title-text">Welcome Back</div>
+  <a href="{% url 'forgot_password' %}">Forgot Password?</a>
+  <div class="signin-box">
+    <form method="POST">
+      {% csrf_token %}
+      <div>
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required>
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required>
+      </div>
+      <div class="show-password-checkbox">
+        <input type="checkbox" onclick="togglePassword()"> Show Password
+      </div>
+      <button type="submit">Sign In</button>
+    </form>
+    
+    {% if error_message %}
+      <div class="error-message">
+        {% if error_message == "no_user" %}
+          No user found, please <a href="{% url 'signup' %}">sign up</a>.
+        {% elif error_message == "wrong_password" %}
+          Password is incorrect.
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="link">
+    Don't have an account? <a href="{% url 'signup' %}">Sign Up</a>
+  </div>
+
+  <script>
+    function togglePassword() {
+      const pass = document.getElementById("password");
+      pass.type = pass.type === "password" ? "text" : "password";
+    }
+  </script>
+</body>
+</html>

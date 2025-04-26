@@ -1,0 +1,126 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation - NEGIZON</title>
+    <style>
+        .btn-action {
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background-color: #00c776;
+            color: white;
+        }
+        .btn-action:hover {
+            background-color: #00ad65;
+        }
+
+        body {
+            background-color: #f0fff5;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 40px;
+            color: #212529;
+        }
+
+        .confirmation-box {
+            background-color: #ffffff;
+            max-width: 800px;
+            margin: auto;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #00b774;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .order-info {
+            margin-bottom: 25px;
+        }
+
+        .order-info p {
+            margin: 6px 0;
+            font-size: 1.05rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        th {
+            background-color: #e6f8f1;
+            color: #198754;
+        }
+
+        .total {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmation-box">
+        <h1>🎉 Your Order Has Been Placed Successfully!</h1>
+
+        <div class="order-info">
+            <p><strong>Order ID:</strong> {{ order.id }}</p>
+            <p><strong>Name:</strong> {{ order.name }}</p>
+            <p><strong>Email:</strong> {{ order.email }}</p>
+            <p><strong>Phone:</strong> {{ order.phone }}</p>
+            <p><strong>Shipping Address:</strong> {{ order.address1 }} {{ order.address2 }}, {{ order.city }}, {{ order.postal_code }}</p>
+            <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+            <p><strong>Status:</strong> {{ order.status }}</p>
+        </div>
+
+        <h2>🧦 Order Items</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Sock</th>
+                    <th>Quantity</th>
+                    <th>Price (Each)</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                <tr>
+                    <td><img src="{{ item.sock.image.url }}" alt="{{ item.sock.name }}" style="width:50px; height:50px;"></td>
+                    <td>{{ item.sock.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.price }}</td>
+                    <td>₹{{ item.quantity|multiply:item.price }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="4" class="total">Total (Including ₹150 Shipping)</td>
+                    <td class="total">₹{{ order.total_amount }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top: 30px; display: flex; gap: 20px; justify-content: center; align-items: center;">
+            <a href="{% url 'download_invoice' order.id %}" class="btn-action">🧾 Download Invoice</a>
+            <a href="{% url 'home' %}" class="btn-action">🏠 Continue Shopping</a>
+        </div>
+    </div>
+</body>
+</html>

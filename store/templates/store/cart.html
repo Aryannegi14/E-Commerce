@@ -1,0 +1,135 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Cart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+        .buy-now-button {
+            background-color: #49986b;
+            color: white;
+            padding: 10px 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            text-decoration: none;
+        }
+
+        .buy-now-button.disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .cart-title {
+            font-family: 'Archivo Black', sans-serif;
+            color: #000;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            background: #fff;
+            border-left: 5px solid #49986b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .cart-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .warning {
+            color: red;
+            font-weight: bold;
+        }
+
+        .remove-button {
+            background-color: #ff5e5e;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .quantity-btn {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .total {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    {% include 'store/navbar.html' %}
+    <h1 class="cart-title">Your Cart</h1>
+
+    {% if is_cart_empty %}
+    <h3>Your Cart is Empty :(</h3>
+    <a href="{% url 'home' %}" class="buy-now-button">Continue Shopping</a>
+    {% else %}
+
+        {% for item in items %}
+            <div class="cart-item">
+                <a href="{% url 'sock_detail' item.sock.id %}">
+                    <img src="{{ item.sock.image.url }}" alt="{{ item.sock.name }}">
+                </a>
+                <div style="flex: 1;">
+                    <h2>{{ item.sock.name }}</h2>
+                    <p>Price: ₹{{ item.sock.price }}</p>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <form method="post" action="{% url 'update_quantity' item.id %}">
+                            {% csrf_token %}
+                            <button type="submit" name="action" value="decrease" class="quantity-btn">-</button>
+                            <span>{{ item.quantity }}</span>
+                            <button type="submit" name="action" value="increase" class="quantity-btn">+</button>
+                        </form>
+                    </div>
+
+                    {% if item.quantity > item.sock.stock %}
+                        <p class="warning">Only {{ item.sock.stock }} left in stock!</p>
+                    {% endif %}
+
+                    <p>Total: ₹{{ item.total_price }}</p>
+                </div>
+
+                <form method="post" action="{% url 'remove_from_cart' item.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="remove-button">Remove</button>
+                </form>
+            </div>
+        {% endfor %}
+
+        <h3 class="total">Total Amount: ₹{{ total_amount }}</h3>
+        <h6>*Including Delivery Charges*</h6>
+
+        {% if blocked %}
+            <!-- If any item has quantity > stock, disable the buy button -->
+            <a class="buy-now-button disabled" href="#">Buy Now</a>
+        {% else %}
+            <!-- Otherwise, allow to proceed to the buy page -->
+            <a href="{% url 'buy_view' %}" class="buy-now-button">Buy Now</a>
+        {% endif %}
+    {% endif %}
+</body>
+</html>

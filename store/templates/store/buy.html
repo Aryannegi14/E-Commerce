@@ -1,0 +1,275 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Sock Shop</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+    .checkout-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+    .form-section, .summary-section {
+      background-color: #fff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .form-section {
+      flex: 2;
+      min-width: 300px;
+    }
+    .summary-section {
+      flex: 1;
+      min-width: 300px;
+      height: fit-content;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .form-input, select, textarea {
+      width: 100%;
+      padding: 18px;
+      font-size: 1.2rem;
+      height: 48px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .form-input:focus {
+      border-color: #00e087;
+      box-shadow: 0 0 5px rgba(0, 255, 135, 0.2);
+    }
+    .buy-now-btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.2rem;
+      background-color: #00e087;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: 30px;
+    }
+    .buy-now-btn:hover {
+      background-color: #00c770;
+    }
+    .buy-now-btn:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    .summary-details {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .summary-details img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-right: 12px;
+    }
+    .order-summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .order-summary-table th,
+    .order-summary-table td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+    .order-summary-table th {
+      background-color: #f2f2f2;
+    }
+    .required {
+      color: red;
+      font-size: 0.9rem;
+      margin-left: 5px;
+    }
+    .error-message {
+      color: red;
+      font-size: 0.9rem;
+      display: none;
+      margin-top: 5px;
+    }
+    @media (max-width: 768px) {
+      .checkout-container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% include 'store/navbar.html' %}
+
+  <div class="checkout-container">
+    <div class="form-section">
+      <form method="post" action="{% url 'buy_view' %}" id="checkoutForm">
+        {% csrf_token %}
+        <h2 style="color: #00e087;">Shipping Address</h2>
+
+        <div class="form-group">
+          <label for="{{ form.name.id_for_label }}" class="form-label">Name <span class="required" id="nameRequired">*Required</span></label>
+          {{ form.name }}
+          <div class="error-message" id="nameError">Name should only contain letters and spaces.</div>
+          {{ form.name.errors }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.phone.id_for_label }}" class="form-label">Phone <span class="required" id="phoneRequired">*Required</span></label>
+          {{ form.phone }}
+          <div class="error-message" id="phoneError">Phone number must be exactly 10 digits.</div>
+          {{ form.phone.errors }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.email.id_for_label }}" class="form-label">Email <span class="required" id="emailRequired">*Required</span></label>
+          {{ form.email }}
+          <div class="error-message" id="emailError">Please enter a valid Gmail address (e.g., example@gmail.com).</div>
+          {{ form.email.errors }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.state.id_for_label }}" class="form-label">State <span class="required" id="stateRequired">*Required</span></label>
+          <input type="text" name="state" id="{{ form.state.id_for_label }}" class="form-input" value="{{ form.state.value|default_if_none:'' }}" required>
+          <div class="error-message" id="stateError">State should only contain letters and spaces.</div>
+          {{ form.state.errors }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.city.id_for_label }}" class="form-label">City <span class="required" id="cityRequired">*Required</span></label>
+          {{ form.city }}
+          <div class="error-message" id="cityError">City should only contain letters and spaces.</div>
+          {{ form.city.errors }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.postal_code.id_for_label }}" class="form-label">Postal Code <span class="required" id="postalCodeRequired">*Required</span></label>
+          {{ form.postal_code }}
+          <div class="error-message" id="postalCodeError">Postal code must be exactly 6 digits and numbers only.</div>
+          {{ form.postal_code.errors }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.address1.id_for_label }}" class="form-label">Address Line 1 <span class="required" id="address1Required">*Required</span></label>
+          {{ form.address1 }}
+          {{ form.address1.errors }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.address2.id_for_label }}" class="form-label">Address Line 2</label>
+          {{ form.address2 }}
+          {{ form.address2.errors }}
+        </div>    
+        <h3>Select Payment Method</h3>
+        <div class="payment-methods">
+          <label><input type="radio" name="payment_method" value="razorpay" checked> Razorpay</label><br>
+          <label><input type="radio" name="payment_method" value="paypal"> PayPal</label><br>
+          <label><input type="radio" name="payment_method" value="card"> Card</label><br>
+          <label><input type="radio" name="payment_method" value="cod"> Cash on Delivery</label>
+        </div>
+
+        <button type="submit" class="buy-now-btn" id="placeOrderBtn" disabled>Place Order</button>
+      </form>
+    </div>
+
+    <div class="summary-section">
+      <h2 style="color: #00e087;">Order Summary</h2>
+      {% for item in cart_items %}
+        <div class="summary-details">
+          <img src="{{ item.sock.image.url }}" alt="{{ item.sock.name }}">
+          <div>
+            <p>{{ item.sock.name }}</p>
+            <p>Quantity: {{ item.quantity }}</p>
+            <p>Price: ₹{{ item.sock.price }}</p>
+          </div>
+        </div>
+      {% endfor %}
+      <table class="order-summary-table">
+        <tr><th>Subtotal</th><td>₹{{ subtotal|floatformat:2 }}</td></tr>
+        <tr><th>Shipping</th><td>₹150.00</td></tr>
+        <tr><th>Total</th><td>₹{{ total_amount|floatformat:2 }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('checkoutForm');
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+
+    const fields = {
+      name: { input: document.querySelector('input[name="name"]'), error: document.getElementById('nameError'), required: document.getElementById('nameRequired'), regex: /^[A-Za-z\s]+$/, errorMessage: "Name should only contain letters and spaces." },
+      phone: { input: document.querySelector('input[name="phone"]'), error: document.getElementById('phoneError'), required: document.getElementById('phoneRequired'), regex: /^\d{10}$/, errorMessage: "Phone number must be exactly 10 digits." },
+      email: { input: document.querySelector('input[name="email"]'), error: document.getElementById('emailError'), required: document.getElementById('emailRequired'), regex: /^[a-zA-Z0-9._%+-]+@gmail\.com$/, errorMessage: "Please enter a valid Gmail address (e.g., example@gmail.com)." },
+      address1: { input: document.querySelector('input[name="address1"]'), required: document.getElementById('address1Required') },
+      city: { input: document.querySelector('input[name="city"]'), error: document.getElementById('cityError'), required: document.getElementById('cityRequired'), regex: /^[A-Za-z\s]+$/, errorMessage: "City should only contain letters and spaces." },
+      state: { input: document.querySelector('input[name="state"]'), error: document.getElementById('stateError'), required: document.getElementById('stateRequired'), regex: /^[A-Za-z\s]+$/, errorMessage: "State should only contain letters and spaces." },
+      postalCode: { input: document.querySelector('input[name="postal_code"]'), error: document.getElementById('postalCodeError'), required: document.getElementById('postalCodeRequired'), regex: /^\d{6}$/, errorMessage: "Postal code must be exactly 6 digits and numbers only." }
+    };
+
+    function validateField(field) {
+      if (!field.input.value) {
+        if (field.error) field.error.style.display = 'none';
+        field.required.style.display = 'inline';
+        return false;
+      }
+
+      if (field.regex) {
+        const isValid = field.regex.test(field.input.value);
+        field.error.style.display = isValid ? 'none' : 'block';
+        field.required.style.display = isValid ? 'none' : 'inline';
+        return isValid;
+      }
+
+      field.required.style.display = 'none';
+      return true;
+    }
+
+    function checkFormValidity() {
+      const allValid = Object.values(fields).every(field => validateField(field));
+      placeOrderBtn.disabled = !allValid;
+    }
+
+    Object.values(fields).forEach(field => {
+      field.input.addEventListener('input', () => {
+        validateField(field);
+        checkFormValidity();
+      });
+    });
+
+    form.addEventListener('submit', function(event) {
+      let isValid = true;
+
+      Object.values(fields).forEach(field => {
+        if (!validateField(field)) {
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        event.preventDefault();
+      }
+    });
+
+    // Initial validation check
+    checkFormValidity();
+  </script>
+</body>
+</html>

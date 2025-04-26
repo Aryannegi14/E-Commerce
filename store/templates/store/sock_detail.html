@@ -1,0 +1,456 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ sock.name }} — Sock Shop</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #88c999;
+      color: #333;
+    }
+    a {
+      text-decoration: none;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .star-rating-input {
+      margin: 10px 0 20px;
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      flex-direction: row-reverse;
+    }
+    .star-rating-input .star {
+      font-size: 24px;
+      color: #ccc;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .star-rating-input .star.selected,
+    .star-rating-input .star:hover,
+    .star-rating-input .star:hover ~ .star {
+      color: gold;
+    }
+    .star-rating-display {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 15px;
+    }
+    .star-rating-display .star {
+      font-size: 20px;
+      color: #ccc;
+    }
+    .star-rating-display .star.filled {
+      color: gold !important;
+    }
+    .star-rating-display .star.empty {
+      color: #ccc;
+    }
+    .details-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .details-box img.sock-image {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin-bottom: 20px;
+    }
+    .details-box img.sock-image:hover {
+      transform: scale(1.05);
+    }
+    .details-box h1 {
+      font-family: 'Archivo Black', sans-serif;
+      font-style: italic;
+      text-transform: lowercase;
+      color: #49986b;
+      font-size: 3rem;
+      margin: 0 0 20px;
+      letter-spacing: -1px;
+      transition: transform 0.3s ease;
+    }
+    .details-box h1:hover {
+      transform: scale(1.05);
+    }
+    .details-box p.description {
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      line-height: 1.5;
+      color: #555;
+    }
+    .details-box p.review-count {
+      font-size: 1rem;
+      margin-bottom: 15px;
+      color: #555;
+    }
+    .details-box p.price {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .btn-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .btn {
+      padding: 12px 24px;
+      border: 2px solid #49986b;
+      background: #fff;
+      color: #49986b;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: .3s ease;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #49986b;
+      color: #fff;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      padding-top: 60px;
+    }
+    .modal-content {
+      margin: auto;
+      display: block;
+      max-width: 80%;
+      max-height: 80%;
+      border-radius: 12px;
+    }
+    .modal .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: #fff;
+      font-size: 40px;
+      cursor: pointer;
+    }
+    .modal .close:hover {
+      color: #ccc;
+    }
+    .review-section {
+      background: #f0f4f1;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 40px 0;
+    }
+    .review-section h2 {
+      font-family: 'Archivo Black', sans-serif;
+      color: #333;
+      margin-bottom: 20px;
+      text-transform: lowercase;
+      letter-spacing: -1px;
+    }
+    .review-section textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+      resize: vertical;
+      color: #000;
+    }
+    .review-section .upload-label {
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+    .review-section input[type="file"] {
+      display: none;
+    }
+    #mediaPreview {
+      display: none;
+      margin-bottom: 15px;
+      max-width: 100%;
+      text-align: center;
+    }
+    #mediaPreview img,
+    #mediaPreview video {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 8px;
+    }
+    .reviews-list h3 {
+      font-family: 'Archivo Black', sans-serif;
+      color: #333;
+      margin-bottom: 20px;
+      text-transform: lowercase;
+      letter-spacing: -1px;
+    }
+    .review-box {
+      background: #fff;
+      color: #000;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .review-box .review-user {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .review-box .review-text {
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .review-box .review-rating {
+      margin-bottom: 12px;
+    }
+    .review-image img,
+    .review-video video {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .review-image img:hover,
+    .review-video video:hover {
+      transform: scale(1.2);
+    }
+    .review-media-modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      padding-top: 60px;
+    }
+    .review-media-modal img,
+    .review-media-modal video {
+      margin: auto;
+      max-width: 80%;
+      max-height: 80%;
+      display: block;
+    }
+    .review-media-modal .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: #fff;
+      font-size: 40px;
+      cursor: pointer;
+    }
+    .review-media-modal .close:hover {
+      color: #ccc;
+    }
+    .error-message {
+      color: red;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+
+<body>
+  {% include 'store/navbar.html' %}
+  <div class="container">
+    <div class="details-box">
+      <img id="previewImg" class="sock-image" src="{{ sock.image.url }}" alt="{{ sock.name }}" title="{{ sock.name }}">
+      <h1>{{ sock.name }}</h1>
+      <p class="description">{{ sock.description }}</p>
+      <p class="review-count">{{ sock.review_count }} reviews</p>
+      {% if sock.review_count > 0 and sock.average_rating %}
+        <div class="star-rating-display">
+          {% for i in "12345" %}
+            <span class="star {% if i|floatformat:0 <= sock.average_rating|floatformat:1 %}filled{% else %}empty{% endif %}">★</span>
+          {% endfor %}
+        </div>
+        <p>{{ sock.average_rating|floatformat:1 }} stars</p>
+      {% else %}
+        <p>No reviews yet.</p>
+      {% endif %}
+      <p class="price">₹{{ sock.price }}</p>
+      <div class="btn-container">
+        {% if user.is_authenticated %}
+          {% if sock.is_in_stock %}
+            <a href="{% url 'add_to_cart' sock.id %}" class="btn upload-btn">Add to Cart</a>
+            <p style="color: #49986b; padding-top: 20px; font-size: 30px;">In Stock: {{ sock.stock }}</p>
+          {% else %}
+            <p style="color: red; font-weight: bold;">Out of Stock</p>
+          {% endif %}
+        {% else %}
+          <p style="color: red; font-weight: bold;">Please <a href="{% url 'signin' %}">Sign In</a> or <a href="{% url 'signup' %}">Sign Up</a> to add items to your cart.</p>
+        {% endif %}
+      </div>
+
+      <div id="imgModal" class="modal">
+        <span class="close" id="closeModal">×</span>
+        <img id="modalImg" class="modal-content" alt="Sock Image">
+      </div>
+
+      <div class="review-section">
+        <h2>Add a Review</h2>
+        {% if error %}
+          <p class="error-message">{{ error }}</p>
+        {% endif %}
+        {% if user.is_authenticated %}
+          <div id="mediaPreview">
+            <img id="imagePreview" alt="Image Preview">
+            <video id="videoPreview" controls>
+              <source id="videoSource" type="video/mp4">
+            </video>
+          </div>
+          <form method="post" enctype="multipart/form-data" action="{% url 'sock_detail' sock.id %}">
+            {% csrf_token %}
+            <textarea name="text" rows="4" placeholder="Write your review..."></textarea>
+            <div class="star-rating-input" id="starRatingInput">
+              {% for i in "54321" %}
+                <span class="star" data-value="{{ i }}">★</span>
+              {% endfor %}
+              <input type="hidden" name="rating" id="ratingValue">
+            </div>
+            <label for="mediaUpload" class="upload-label btn">Upload Photo/Video</label>
+            <input id="mediaUpload" type="file" name="media" accept="image/*,video/*" onchange="previewMedia(event)">
+            <button type="submit" class="btn upload-btn">Submit Review</button>
+          </form>
+        {% else %}
+          <p style="color: red; font-weight: bold;">Please <a href="{% url 'signin' %}">Sign In</a> or <a href="{% url 'signup' %}">Sign Up</a> to add a review.</p>
+        {% endif %}
+      </div>
+
+      <div class="reviews-list">
+        <h3>reviews</h3>
+        {% for review in reviews %}
+          <div class="review-box">
+            <p class="review-user">{{ review.user.username }}</p>
+            <div class="review-rating star-rating-display">
+              {% if review.rating %}
+                {% for i in "12345" %}
+                  <span class="star {% if i|floatformat:0 <= review.rating|floatformat:0 %}filled{% else %}empty{% endif %}">★</span>
+                {% endfor %}
+              {% else %}
+                <span>No rating</span>
+              {% endif %}
+            </div>
+            <p class="review-text">{{ review.text }}</p>
+            {% if review.photo %}
+              <div class="review-image" onclick="openReviewMedia('{{ review.photo.url }}', 'image')">
+                <img src="{{ review.photo.url }}" alt="Review Image">
+              </div>
+            {% endif %}
+            {% if review.video %}
+              <div class="review-video" onclick="openReviewMedia('{{ review.video.url }}', 'video')">
+                <video>
+                  <source src="{{ review.video.url }}" type="video/mp4">
+                </video>
+              </div>
+            {% endif %}
+            <p class="review-date">{{ review.created_at|date:"d M Y" }}</p>
+          </div>
+        {% empty %}
+          <p style="color:#fff;">no reviews yet. be the first!</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div id="reviewMediaModal" class="review-media-modal">
+      <span class="close" id="closeReviewModal">×</span>
+      <img id="reviewMediaImg" class="modal-content" alt="Review Media">
+      <video id="reviewMediaVid" controls class="modal-content">
+        <source id="reviewMediaVidSource" type="video/mp4">
+      </video>
+    </div>
+
+    <script>
+      const modal = document.getElementById("imgModal"),
+        modalImg = document.getElementById("modalImg"),
+        previewImg = document.getElementById("previewImg"),
+        closeModal = document.getElementById("closeModal");
+      previewImg.onclick = () => {
+        modal.style.display = "block";
+        modalImg.src = previewImg.src;
+      };
+      closeModal.onclick = () => modal.style.display = "none";
+      window.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
+
+      function previewMedia(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById("mediaPreview");
+        const imgPre = document.getElementById("imagePreview");
+        const vidPre = document.getElementById("videoPreview");
+        const videoSrc = document.getElementById("videoSource");
+
+        preview.style.display = "block";
+        if (file.type.startsWith("image")) {
+          imgPre.style.display = "block";
+          vidPre.style.display = "none";
+          imgPre.src = URL.createObjectURL(file);
+        } else if (file.type.startsWith("video")) {
+          imgPre.style.display = "none";
+          vidPre.style.display = "block";
+          videoSrc.src = URL.createObjectURL(file);
+          vidPre.load();
+        }
+      }
+
+      function openReviewMedia(url, type) {
+        const reviewModal = document.getElementById("reviewMediaModal");
+        const reviewImg = document.getElementById("reviewMediaImg");
+        const reviewVid = document.getElementById("reviewMediaVid");
+        const reviewVidSrc = document.getElementById("reviewMediaVidSource");
+
+        if (type === "image") {
+          reviewVid.style.display = "none";
+          reviewImg.style.display = "block";
+          reviewImg.src = url;
+        } else {
+          reviewImg.style.display = "none";
+          reviewVid.style.display = "block";
+          reviewVidSrc.src = url;
+          reviewVid.load();
+        }
+        reviewModal.style.display = "block";
+      }
+
+      document.querySelectorAll('#starRatingInput .star').forEach(star => {
+        star.addEventListener('click', () => {
+          const value = parseInt(star.getAttribute('data-value'));
+          const allStars = document.querySelectorAll('#starRatingInput .star');
+
+          allStars.forEach(s => {
+            const sVal = parseInt(s.getAttribute('data-value'));
+            s.classList.toggle('selected', sVal <= value);
+          });
+
+          document.getElementById('ratingValue').value = value;
+        });
+      });
+
+      document.getElementById("closeReviewModal").onclick = () => {
+        document.getElementById("reviewMediaModal").style.display = "none";
+      };
+    </script>
+</body>
+</html>

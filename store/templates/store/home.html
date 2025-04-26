@@ -1,0 +1,197 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sock Shop - Home</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: white;
+      color: black;
+    }
+    .sock-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+    .sock-card {
+      background-color: white;
+      color: black;
+      width: 200px;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: all 0.5s ease;
+      text-align: center;
+    }
+    .sock-card:hover {
+      transform: scale(1.07);
+      background-color: #f0f0f0;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    .sock-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .sock-card h2 {
+      font-size: 1.1rem;
+      margin: 5px 0;
+    }
+    .sock-card p {
+      margin: 5px 0;
+    }
+    .sock-card a {
+      color: #00e087;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    .star-rating-display {
+      display: flex;
+      justify-content: center;
+      gap: 3px;
+      margin-bottom: 5px;
+    }
+    .star-rating-display .star {
+      font-size: 16px;
+      color: #ccc;
+    }
+    .star-rating-display .star.filled {
+      color: gold;
+    }
+    .review-count {
+      font-size: 0.9em;
+      color: #555;
+      display: block;
+      text-align: center;
+      margin-top: 2px;
+    }
+    .alert p {
+      margin: 1em;
+    }
+    .alert .success {
+      color: green;
+    }
+    .alert .error {
+      color: red;
+    }
+    #logoutConfirmation {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #49986b;
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      z-index: 9999;
+    }
+    #logoutConfirmation button {
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s ease;
+    }
+    #confirmLogout {
+      background-color: white;
+      color: #49986b;
+    }
+    #confirmLogout:hover {
+      background-color: #e6e6e6;
+    }
+    #cancelLogout {
+      background-color: white;
+      color: red;
+    }
+    #cancelLogout:hover {
+      background-color: #f8d7da;
+    }
+  </style>
+</head>
+
+<body style="padding-top: 140px;">
+  {% include 'store/navbar.html' %}
+  {% if messages %}
+    <div class="alert">
+      {% for message in messages %}
+        <p class="{{ message.tags }}">{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="sock-grid">
+    {% if socks %}
+      {% for sock in socks %}
+        <a href="{% url 'sock_detail' sock.id %}" style="text-decoration:none; color:inherit;">
+          <div class="sock-card">
+            <img src="{{ sock.image.url }}" alt="{{ sock.name }}">
+            <h2>{{ sock.name }}</h2>
+            <p>₹{{ sock.price }}</p>
+            {% if sock.is_in_stock %}
+              <p style="color:green;">In Stock: {{ sock.stock }}</p>
+            {% else %}
+              <p style="color:red;">Out of Stock</p>
+            {% endif %}
+            <div class="star-rating-display">
+              {% if sock.review_count > 0 and sock.average_rating %}
+                {% for i in "12345" %}
+                  <span class="star {% if i|floatformat:0 <= sock.average_rating|floatformat:1 %}filled{% endif %}">★</span>
+                {% endfor %}
+              {% else %}
+                <span>No reviews yet</span>
+              {% endif %}
+            </div>
+            {% if sock.review_count > 0 and sock.average_rating %}
+              <p class="review-count">{{ sock.review_count }} reviews</p>
+            {% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <p>No socks available.</p>
+    {% endif %}
+  </div>
+
+  <div id="logoutConfirmation">
+    <p>Are you sure you want to log out?</p>
+    <button id="confirmLogout">Yes</button>
+    <button id="cancelLogout">No</button>
+  </div>
+
+  <script>
+    const logoutLink = document.getElementById("logoutLink");
+    const logoutConfirmation = document.getElementById("logoutConfirmation");
+    const confirmLogout = document.getElementById("confirmLogout");
+    const cancelLogout = document.getElementById("cancelLogout");
+
+    logoutLink.addEventListener("click", function(e) {
+      e.preventDefault();
+      logoutConfirmation.style.display = "block";
+    });
+
+    confirmLogout.addEventListener("click", function() {
+      window.location.href = "{% url 'logout' %}";
+    });
+
+    cancelLogout.addEventListener("click", function() {
+      logoutConfirmation.style.display = "none";
+    });
+  </script>
+</body>
+</html>

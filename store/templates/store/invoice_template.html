@@ -1,0 +1,85 @@
+<!-- store/invoice_template.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice - Order #{{ order.id }}</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .invoice-header h1 {
+            color: #00b774;
+        }
+        .invoice-header p {
+            font-size: 1.1rem;
+        }
+        .order-info {
+            margin-bottom: 20px;
+        }
+        .order-info p {
+            font-size: 1rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f0f8f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-header">
+        <h1>Invoice for Order #{{ order.id }}</h1>
+        <p>Thank you for your purchase from NEGIZON!</p>
+    </div>
+    
+    <div class="order-info">
+        <p><strong>Name:</strong> {{ order.name }}</p>
+        <p><strong>Email:</strong> {{ order.email }}</p>
+        <p><strong>Phone:</strong> {{ order.phone }}</p>
+        <p><strong>Shipping Address:</strong> {{ order.address1 }} {{ order.address2 }}, {{ order.city }}, {{ order.postal_code }}</p>
+    </div>
+
+    <h3>Ordered Items</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Sock</th>
+                <th>Quantity</th>
+                <th>Price (Each)</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+                <tr>
+                    <td>{{ item.sock.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.sock.price }}</td>
+                    <td>₹{{ item.quantity|multiply:item.sock.price }}</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3">
+                    <strong>Total</strong><br>
+                  </td>
+                 
+                <td><strong>₹{{ order.total_amount }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

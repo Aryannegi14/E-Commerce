@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Verification</title>
+  <style>
+    body {
+      background: #49986b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    .box {
+      background: #fff;
+      color: #333;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      max-width: 360px;
+      width: 100%;
+    }
+    .box h1 {
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+    }
+    .box input {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    .box button {
+      width: 100%;
+      padding: 0.75rem;
+      background: #49986b;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .box button:hover {
+      background: #3c7c5a;
+    }
+    .messages {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 1rem;
+    }
+    .messages li.error { color: red; }
+    .messages li.success { color: green; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Enter OTP</h1>
+    {% if messages %}
+      <ul class="messages">
+        {% for msg in messages %}
+          <li class="{{ msg.tags }}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <input type="text" name="otp" placeholder="6‑digit OTP" required maxlength="6" />
+      <button type="submit">Verify OTP</button>
+    </form>
+    <form method="post" action="{% url 'resend_otp' %}" style="margin-top:1rem;">
+      {% csrf_token %}
+      <button type="submit" style="background: #f1a82d;">Resend OTP</button>
+    </form>
+  </div>
+</body>
+</html>

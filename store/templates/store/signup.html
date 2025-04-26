@@ -1,0 +1,206 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up</title>
+  <style>
+    body {
+      background-color: #49986b;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: #49986b;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .title-text {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: white;
+    }
+
+    .signup-box {
+      background-color: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .signup-box form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .signup-box input {
+      padding: 10px;
+      margin: 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .signup-box button {
+      padding: 10px;
+      background-color: #49986b;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .signup-box button:hover {
+      background-color: white;
+      color: #49986b;
+      border: 1px solid #49986b;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+      color: white;
+    }
+
+    .link a {
+      color: white;
+      text-decoration: underline;
+    }
+
+    .helptext {
+      font-size: 12px;
+      color: white;
+      margin-top: 10px;
+    }
+
+    .show-password-checkbox {
+      margin-top: 10px;
+    }
+
+    .resend-otp-button {
+      padding: 10px;
+      background-color: #f1a82d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+    }
+
+    .resend-otp-button:hover {
+      background-color: white;
+      color: #f1a82d;
+      border: 1px solid #f1a82d;
+    }
+  </style>
+</head>
+<body>
+  {% include 'store/navbar.html' %}
+  <div class="title-text">Create Your Account</div>
+
+  <div class="signup-box">
+    <form id="signup-form" method="post">
+      {% csrf_token %}
+
+      <input type="text" id="username" name="username" placeholder="Enter username" required>
+      <input type="email" id="email" name="email" placeholder="Enter email" required>
+      <input type="password" id="password" name="password" placeholder="Enter password" required>
+
+      <div class="show-password-checkbox">
+        <label>
+          <input type="checkbox" id="show-password"> Show Password
+        </label>
+      </div>
+
+      <button type="submit" id="signup-button" disabled>Sign Up</button>
+    </form>
+  </div>
+
+  <div class="link">
+    Already have an account? <a href="{% url 'signin' %}">Sign In</a>
+  </div>
+
+  <div class="helptext">
+    Username must be under 150 characters. Only letters, digits, spaces, and @/./+/-/_ allowed.
+  </div>
+
+  <div id="error-message" class="error-message"></div>
+
+  <script>
+    const usernameInput = document.getElementById("username");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const signupButton = document.getElementById("signup-button");
+    const errorMessageDiv = document.getElementById("error-message");
+    const showPasswordCheckbox = document.getElementById("show-password");
+
+    function validateForm() {
+      const username = usernameInput.value;
+      const email = emailInput.value;
+
+      const usernameRegex = /^[a-zA-Z0-9 @.+_-]+$/;
+      if (!usernameRegex.test(username)) {
+        errorMessageDiv.textContent = "Enter a valid username (letters, numbers, spaces, and @/./+/-/_ are allowed).";
+        signupButton.disabled = true;
+        return;
+      }
+
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(email)) {
+        errorMessageDiv.textContent = "Enter a valid email address.";
+        signupButton.disabled = true;
+        return;
+      }
+
+      fetch(`/check-username-email/?username=${username}&email=${email}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.username_taken) {
+            errorMessageDiv.textContent = "Username is already taken. Please choose another one.";
+            signupButton.disabled = true;
+          } else if (data.email_taken) {
+            errorMessageDiv.textContent = "Email is already registered. Please sign in.";
+            signupButton.disabled = true;
+          } else {
+            errorMessageDiv.textContent = "";
+            signupButton.disabled = false;
+          }
+        });
+    }
+
+    usernameInput.addEventListener("input", validateForm);
+    emailInput.addEventListener("input", validateForm);
+
+    showPasswordCheckbox.addEventListener("change", function() {
+      if (showPasswordCheckbox.checked) {
+        passwordInput.type = "text";
+      } else {
+        passwordInput.type = "password";
+      }
+    });
+  </script>
+
+</body>
+</html>

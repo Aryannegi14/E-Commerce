@@ -1,0 +1,306 @@
+{% load custom_filters %}
+{% load tz %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>My Profile — Sock Shop</title>
+
+    <!-- Archivo Black font (consistent with navbar) -->
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #88c999;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            padding-top: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .status-pending { color: orange; font-weight: bold; }
+        .status-delivered { color: green; font-weight: bold; }
+        .status-other { color: red; font-weight: bold; }
+        .profile-box {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            margin: 40px auto;
+        }
+        h2 {
+            font-family: 'Archivo Black', sans-serif;
+            color: #49986b;
+            margin-bottom: 30px;
+            text-transform: lowercase;
+            letter-spacing: -1px;
+        }
+        .profile-img {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #49986b;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .profile-img:hover {
+            transform: scale(1.05);
+        }
+        .user-name {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .form-group {
+            margin-bottom: 25px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            border-radius: 8px;
+            border: 2px solid #49986b;
+            padding: 12px;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            color: #333;
+        }
+        .form-control:focus {
+            outline: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: #3a7a56;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: 2px solid #49986b;
+            background: #fff;
+            color: #49986b;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background: #49986b;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            border: 2px solid #dc3545;
+            color: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #dc3545;
+            color: #fff;
+        }
+        .btn-review {
+            padding: 8px 16px;
+            border: 2px solid #49986b;
+            background: #fff;
+            color: #49986b;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-left: 10px;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .btn-review:hover {
+            background: #49986b;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+        .hidden {
+            display: none;
+        }
+        #uploadLabel {
+            background: #49986b;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        #uploadLabel:hover {
+            background: #3a7a56;
+        }
+        #id_pfp {
+            display: none;
+        }
+        .orders-section {
+            margin-top: 40px;
+        }
+        .order-card {
+            background: #f0f4f1;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            text-align: left;
+        }
+        .order-card:hover {
+            transform: scale(1.02);
+        }
+        .order-title {
+            font-family: 'Archivo Black', sans-serif;
+            color: #49986b;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            text-transform: lowercase;
+        }
+        .order-details {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .order-items {
+            margin-top: 15px;
+            padding-left: 20px;
+        }
+        .order-items li {
+            margin-bottom: 8px;
+            font-size: 1rem;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+        .order-item-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+        .order-total {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-top: 15px;
+        }
+        .no-orders {
+            font-size: 1.1rem;
+            color: #555;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'store/navbar.html' %}
+    <div class="profile-box">
+        <h2>my profile</h2>
+        <img id="profileImage" 
+             src="{% if user.profile.pfp and user.profile.pfp.url %}{{ user.profile.pfp.url }}{% else %}/media/default.jpg{% endif %}" 
+             alt="Profile Picture" 
+             class="profile-img">
+        <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="file" name="pfp" id="id_pfp" accept="image/*">
+                <label for="id_pfp" id="uploadLabel">Choose File</label>
+                <button id="updateBtn" type="submit" class="btn hidden">Update Picture</button>
+                {% if user.profile.pfp %}
+                    <button type="submit" name="remove" value="true" class="btn btn-danger">Remove Picture</button>
+                {% endif %}
+            </div>
+        </form>
+
+        <div class="orders-section">
+            <h2>my orders</h2>
+            {% if orders %}
+                {% for order in orders %}
+                    <div class="order-card">
+                        <div class="order-title">Order #{{ order.id }}</div>
+                        <div class="order-details">
+                            <strong>Date:</strong> {{ order.order_time|date:"d M Y" }}<br>
+                            <strong>Status:</strong> 
+                            <span class="{% if order.status == 'Pending' %}status-pending
+                                        {% elif order.status == 'Delivered' %}status-delivered
+                                        {% else %}status-other{% endif %}">
+                                {{ order.status }}
+                            </span><br>
+                            <strong>Payment Method:</strong> {{ order.payment_method }}
+                        </div>
+                        <ul class="order-items">
+                            {% for item in order.items.all %}
+                                <li>
+                                    <img src="{{ item.sock.image.url }}" alt="{{ item.sock.name }}" class="order-item-img">
+                                    {{ item.sock.name }} 
+                                    {% if item.sock.stock <= 0 %}
+                                        <span style="color: red;">(Out of Stock)</span>
+                                    {% endif %}
+                                    - Quantity: {{ item.quantity }} - ₹{{ item.price }}
+                                    <a href="{% url 'sock_detail' item.sock.id %}" class="btn-review">Add Review</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="order-total">Total: ₹{{ order.total_amount }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-orders">No orders yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+    const fileInput = document.getElementById('id_pfp');
+    const profileImg = document.getElementById('profileImage');
+    const updateBtn = document.getElementById('updateBtn');
+    const uploadLabel = document.getElementById('uploadLabel');
+    const defaultImage = window.location.origin + '/media/default.jpg';
+
+    if (profileImg.src === defaultImage) {
+        uploadLabel.textContent = "Upload Picture";
+    } else {
+        uploadLabel.textContent = "Change PFP";
+    }
+
+    fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                profileImg.src = e.target.result;
+                profileImg.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    profileImg.style.transform = 'scale(1)';
+                }, 300);
+                uploadLabel.textContent = "Change PFP";
+            };
+            reader.readAsDataURL(file);
+            updateBtn.classList.remove('hidden');
+            uploadLabel.classList.add('hidden');
+        }
+    });
+    </script>
+</body>
+</html>
