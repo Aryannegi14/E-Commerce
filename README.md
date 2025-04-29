@@ -66,9 +66,5 @@ License
 This project is licensed under the Apache-2.0 License. See the LICENSE file for details.
 Troubleshooting
 
-Migration Errors: If migrate fails (e.g., DateTimeField issues), delete the migrations folder, recreate it with python manage.py makemigrations, and retry.
-Email Issues: Verify Gmail credentials and allow less secure apps or use an app password.
-Duplicate Entries: Clean the database if socks like "Vegeeta ki socks" and "Vegeta" show inconsistent data.
-
 Contact
-For questions or support, reach out to the repository owner at [your contact info].
+For questions or support, reach out to the repository owner at aryannegiofficial@gmail.com.
